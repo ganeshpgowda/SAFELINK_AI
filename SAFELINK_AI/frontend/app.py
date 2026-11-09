@@ -1,4 +1,4 @@
- """SafeLink AI – Intelligent Fraud URL Detector Frontend.
+"""SafeLink AI – Intelligent Fraud URL Detector Frontend.
 Built with Streamlit & Plotly.
 
 Tagline: Don't click blindly. Check before you trust.
