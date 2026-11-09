@@ -1,4 +1,4 @@
-"""SafeLink AI – Intelligent Fraud URL Detector Frontend.
+ """SafeLink AI – Intelligent Fraud URL Detector Frontend.
 Built with Streamlit & Plotly.
 
 Tagline: Don't click blindly. Check before you trust.
@@ -184,13 +184,14 @@ def generate_html_report(result) -> str:
             <span class="sandbox-tag">🔒 Cloud-Sandboxed Capture</span>
         </div>
         <div class="browser-viewport">
-            <img src="{screenshot_url}" alt="Target Website Sandbox Snapshot" class="screenshot-image" onerror="this.style.display='none'; document.getElementById('report-fallback').style.display='flex';" />
+            <img id="target-screenshot" src="{screenshot_url}" alt="Target Website Sandbox Snapshot" class="screenshot-image" onerror="this.style.display='none'; document.getElementById('report-fallback').style.display='flex';" onload="var retries=Number(this.dataset.retries||0); if(this.naturalWidth<600) {{ if(retries<3) {{ this.dataset.retries=retries+1; setTimeout(()=>{{this.src=this.src.split('&retry=')[0]+'&retry='+Date.now()}},5000); }} else {{this.style.display='none'; document.getElementById('report-fallback').style.display='flex';}} }}" />
             <div id="report-fallback" class="report-fallback">
                 <div style="font-size:36px; margin-bottom:8px;">🛡️</div>
-                <div style="font-weight:700; font-size:15px; color:#142B4A;">Isolated Sandbox Snapshot</div>
+                <div style="font-weight:700; font-size:15px; color:#142B4A;">Website Snapshot</div>
                 <div style="font-size:12px; color:#64748B; max-width:460px; margin-top:4px;">
-                    Destination host is unreachable, non-existent ({dns.status}), or blocked to prevent drive-by execution. SafeLink AI static inspection protected your device.
+                    The screenshot service may need a few seconds or may be unable to capture this site. Try again after the page loads.
                 </div>
+                <button type="button" onclick="var img=document.getElementById('target-screenshot'); img.dataset.retries=0; img.style.display='block'; this.parentElement.style.display='none'; img.src=img.src.split('&retry=')[0]+'&retry='+Date.now();">Retry screenshot</button>
             </div>
         </div>
     </div>
@@ -602,3 +603,6 @@ else:
         #### 4. Brand Similarity
         Detects lookalikes like `nnicrosoft` (mimicking Microsoft) and `g00gle` (mimicking Google) using edit-distance & leet-speak analysis.
         """)
+
+
+The focused UI element is 1 AXWebArea raw.githubusercontent.com/ganeshpgowda/SAFELINK_AI/refs/heads/main/SAFELINK_AI/frontend/app.py
