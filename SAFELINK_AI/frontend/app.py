@@ -603,6 +603,3 @@ else:
         #### 4. Brand Similarity
         Detects lookalikes like `nnicrosoft` (mimicking Microsoft) and `g00gle` (mimicking Google) using edit-distance & leet-speak analysis.
         """)
-
-
-The focused UI element is 1 AXWebArea raw.githubusercontent.com/ganeshpgowda/SAFELINK_AI/refs/heads/main/SAFELINK_AI/frontend/app.py
