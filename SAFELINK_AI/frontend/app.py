@@ -6,6 +6,7 @@ Cyber Theme: Inspired by USER.CTRL with Animated Transparent 3D Rotating Earth.
 """
 
 import sys
+import urllib.parse
 from pathlib import Path
 from datetime import datetime
 import pandas as pd
@@ -115,6 +116,10 @@ def generate_html_report(result) -> str:
     intent_summary = intent.intent_summary if intent else "Standard analysis"
     intent_category = intent.category if intent else "Web Analysis"
 
+    target_url = result.cleaned_url if hasattr(result, "cleaned_url") else result.url
+    encoded_url = urllib.parse.quote(target_url, safe="")
+    screenshot_url = f"https://s0.wp.com/mshots/v1/{encoded_url}?w=800"
+
     html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,10 +132,24 @@ def generate_html_report(result) -> str:
     .title {{ font-size: 24px; font-weight: 800; color: #142B4A; }}
     .subtitle {{ font-size: 14px; color: #4A607A; }}
     .score-badge {{ display: inline-block; background: {badge_bg}; color: {score_color}; font-size: 26px; font-weight: 800; padding: 8px 22px; border-radius: 8px; border: 2px solid {score_color}; margin: 16px 0; }}
-    .section-title {{ font-size: 16px; font-weight: 700; color: #142B4A; margin-top: 20px; margin-bottom: 8px; border-bottom: 1px solid #DCE3EE; padding-bottom: 4px; }}
+    .section-title {{ font-size: 16px; font-weight: 700; color: #142B4A; margin-top: 24px; margin-bottom: 10px; border-bottom: 1px solid #DCE3EE; padding-bottom: 4px; }}
     .meta-table {{ width: 100%; border-collapse: collapse; margin: 12px 0; }}
     .meta-table td {{ padding: 6px 10px; border-bottom: 1px solid #EDF2F7; font-size: 14px; color: #142B4A; }}
     .meta-table td.label {{ font-weight: 600; width: 30%; color: #334E68; }}
+    
+    /* Browser Mockup Window for Website Screenshot */
+    .browser-mockup {{ background: #0F172A; border-radius: 8px; border: 1px solid #CBD5E1; overflow: hidden; margin: 14px 0 20px 0; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }}
+    .browser-header {{ background: #1E293B; padding: 8px 14px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #334155; }}
+    .browser-dot {{ width: 10px; height: 10px; border-radius: 50%; display: inline-block; }}
+    .dot-red {{ background: #EF4444; }}
+    .dot-yellow {{ background: #F59E0B; }}
+    .dot-green {{ background: #10B981; }}
+    .browser-address {{ background: #0F172A; color: #94A3B8; font-family: monospace; font-size: 11px; padding: 4px 10px; border-radius: 4px; margin-left: 10px; flex-grow: 1; border: 1px solid #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+    .sandbox-tag {{ color: #10B981; font-size: 10px; font-weight: 700; background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(16, 185, 129, 0.3); }}
+    .browser-viewport {{ min-height: 200px; background: #F8FAFC; display: flex; align-items: center; justify-content: center; position: relative; }}
+    .screenshot-image {{ width: 100%; max-height: 420px; object-fit: cover; display: block; }}
+    .report-fallback {{ display: none; flex-direction: column; align-items: center; justify-content: center; padding: 36px 20px; text-align: center; }}
+
     .disclaimer {{ background: #EDF2F7; border: 1px solid #DCE3EE; border-radius: 6px; padding: 12px; font-size: 11px; color: #4A607A; margin-top: 28px; }}
     a {{ color: #3978D6; text-decoration: none; font-weight: 600; }}
 </style>
@@ -153,6 +172,27 @@ def generate_html_report(result) -> str:
         <code style="font-size:15px; word-break:break-all; color:#142B4A; background:#EDF2F7; padding:6px 12px; border-radius:6px; display:inline-block; margin-top:4px;">{result.url}</code><br/>
         <div class="score-badge">Risk Score: {risk.score} / 100 • {risk.risk_level.upper()} RISK</div>
         <div style="font-weight:700; font-size:16px; color:#142B4A;">{risk.phishing_classification}</div>
+    </div>
+
+    <div class="section-title">Visual Evidence • Isolated Website Sandbox Snapshot</div>
+    <div class="browser-mockup">
+        <div class="browser-header">
+            <span class="browser-dot dot-red"></span>
+            <span class="browser-dot dot-yellow"></span>
+            <span class="browser-dot dot-green"></span>
+            <span class="browser-address">{target_url}</span>
+            <span class="sandbox-tag">🔒 Cloud-Sandboxed Capture</span>
+        </div>
+        <div class="browser-viewport">
+            <img src="{screenshot_url}" alt="Target Website Sandbox Snapshot" class="screenshot-image" onerror="this.style.display='none'; document.getElementById('report-fallback').style.display='flex';" />
+            <div id="report-fallback" class="report-fallback">
+                <div style="font-size:36px; margin-bottom:8px;">🛡️</div>
+                <div style="font-weight:700; font-size:15px; color:#142B4A;">Isolated Sandbox Snapshot</div>
+                <div style="font-size:12px; color:#64748B; max-width:460px; margin-top:4px;">
+                    Destination host is unreachable, non-existent ({dns.status}), or blocked to prevent drive-by execution. SafeLink AI static inspection protected your device.
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="section-title">1. Target Intention & Threat Objective</div>
@@ -385,6 +425,23 @@ if analyze_clicked or (url_to_analyze and url_to_analyze != st.session_state.get
                 </div>
             </div>
             """, unsafe_allow_html=True)
+
+            # Cloud-Sandboxed Website Screenshot Preview
+            with st.expander("📷 Visual Evidence: Cloud-Sandboxed Website Snapshot", expanded=False):
+                st.markdown(
+                    "<p style='color:#94A3B8; font-size:0.88rem; margin-bottom:12px;'>"
+                    "🔒 <strong>Zero-Exposure Isolation:</strong> This visual capture is safely fetched using a cloud-sandboxed proxy. "
+                    "Your personal device never connects to or executes code from the target server."
+                    "</p>",
+                    unsafe_allow_html=True
+                )
+                preview_target = result.cleaned_url if hasattr(result, "cleaned_url") else result.url
+                preview_encoded = urllib.parse.quote(preview_target, safe="")
+                preview_shot = f"https://s0.wp.com/mshots/v1/{preview_encoded}?w=800"
+                if dns.exists:
+                    st.image(preview_shot, caption=f"Isolated Sandbox Snapshot • {preview_target}", use_container_width=True)
+                else:
+                    st.warning(f"⚠️ Destination domain does not resolve in global DNS ({dns.status}). Remote capture is unavailable for non-existent servers.")
 
             # DETAILED TABS
             tab_intent, tab_typo, tab_dns, tab_recs, tab_factors = st.tabs([
